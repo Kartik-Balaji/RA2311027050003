@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Box,
-  CircularProgress,
   Container,
-  Stack,
   Typography,
+  Paper,
+  Checkbox,
+  IconButton,
+  Stack,
 } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 import NotificationCard from "../components/NotificationCard";
 import NotificationFilters from "../components/NotificationFilters";
@@ -74,49 +77,59 @@ export default function PriorityNotifications() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Priority Notifications
-        </Typography>
+    <Container maxWidth="lg" sx={{ py: 2 }}>
+      <Paper sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center' }}>
+        <Checkbox sx={{ mr: 2 }} />
+        
+        <IconButton sx={{ mr: 1 }}>
+          <RefreshIcon />
+        </IconButton>
+        
+        <IconButton sx={{ mr: 2 }}>
+          <FilterListIcon />
+        </IconButton>
 
-        <Typography color="text.secondary">
-          Shows the most important unread notifications first using type priority
-          and recency.
-        </Typography>
-      </Box>
+        <NotificationFilters
+          notificationType={notificationType}
+          setNotificationType={setNotificationType}
+          limit={limit}
+          setLimit={setLimit}
+          showLimit
+        />
+      </Paper>
 
-      <NotificationFilters
-        notificationType={notificationType}
-        setNotificationType={setNotificationType}
-        limit={limit}
-        setLimit={setLimit}
-        showLimit
-      />
-
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress />
+      <Paper sx={{ minHeight: 500 }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid #efefef" }}>
+          <Typography variant="h6" sx={{ fontWeight: 400, color: "#202124" }}>
+            Priority Inbox
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {priorityNotifications.length} unread messages
+          </Typography>
         </Box>
-      )}
 
-      {error && <Alert severity="error">{error}</Alert>}
+        {error && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error">{error}</Typography>
+          </Box>
+        )}
 
-      {!loading && !error && priorityNotifications.length === 0 && (
-        <Alert severity="info">
-          No unread priority notifications found.
-        </Alert>
-      )}
+        {!loading && !error && priorityNotifications.length === 0 && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="text.secondary">No unread priority notifications.</Typography>
+          </Box>
+        )}
 
-      <Stack spacing={2} key={refreshKey}>
-        {priorityNotifications.map((notification) => (
-          <NotificationCard
-            key={notification.ID}
-            notification={notification}
-            onViewed={handleViewed}
-          />
-        ))}
-      </Stack>
+        <Stack spacing={0} key={refreshKey}>
+          {priorityNotifications.map((notification) => (
+            <NotificationCard
+              key={notification.ID}
+              notification={notification}
+              onViewed={handleViewed}
+            />
+          ))}
+        </Stack>
+      </Paper>
     </Container>
   );
 }

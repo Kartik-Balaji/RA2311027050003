@@ -7,7 +7,7 @@ import PriorityNotifications from "./pages/PriorityNotifications";
 
 export default function App() {
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f7fb" }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "#f6f8fc" }}>
       <Navbar />
 
       <Routes>

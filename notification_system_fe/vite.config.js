@@ -6,12 +6,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/logs': {
-        target: 'http://20.207.122.201/evaluation-service',
+        target: 'http://20.207.122.201',
         changeOrigin: true,
+        rewrite: (path) => '/evaluation-service/logs',
       },
       '/notifications': {
-        target: 'http://20.207.122.201/evaluation-service',
+        target: 'http://20.207.122.201',
         changeOrigin: true,
+        rewrite: (path) => '/evaluation-service/notifications',
       },
     },
   },

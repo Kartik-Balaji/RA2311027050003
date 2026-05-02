@@ -1,4 +1,7 @@
-import { Card, CardContent, Typography, Chip, Stack } from "@mui/material";
+import { Paper, Typography, Chip, Box, IconButton } from "@mui/material";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import {
   getNotificationId,
@@ -12,16 +15,16 @@ import {
   markNotificationAsViewed,
 } from "../utils/viewedUtils";
 
-function getChipColor(type) {
-  if (type === "Placement") {
-    return "success";
-  }
+function getTypeColor(type) {
+  if (type === "Placement") return "#1a73e8";
+  if (type === "Result") return "#ea4335";
+  return "#fbbc04";
+}
 
-  if (type === "Result") {
-    return "primary";
-  }
-
-  return "warning";
+function getTypeBgColor(type) {
+  if (type === "Placement") return "#e8f0fe";
+  if (type === "Result") return "#fce8e6";
+  return "#fef7e0";
 }
 
 export default function NotificationCard({ notification, onViewed }) {
@@ -33,44 +36,84 @@ export default function NotificationCard({ notification, onViewed }) {
 
   function handleClick() {
     markNotificationAsViewed(notification);
-
     if (onViewed) {
       onViewed(id);
     }
   }
 
   return (
-    <Card
+    <Paper
       onClick={handleClick}
+      elevation={viewed ? 0 : 1}
       sx={{
+        p: 2,
+        mb: 1,
         cursor: "pointer",
-        opacity: viewed ? 0.65 : 1,
-        borderLeft: viewed ? "4px solid #9ca3af" : "4px solid #1976d2",
+        display: "flex",
+        alignItems: "center",
+        bgcolor: viewed ? "#fafafa" : "white",
+        borderBottom: "1px solid #efefef",
+        "&:hover": {
+          boxShadow: 1,
+          borderBottom: "1px solid #dadce0",
+        },
       }}
     >
-      <CardContent>
-        <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: "wrap" }}>
-          <Chip label={type} color={getChipColor(type)} size="small" />
+      <Box sx={{ width: 40, mr: 2, display: 'flex', justifyContent: 'center' }}>
+        <IconButton size="small" sx={{ color: "#5f6368" }}>
+          <StarBorderIcon fontSize="small" />
+        </IconButton>
+      </Box>
 
-          <Chip
-            label={viewed ? "Viewed" : "New"}
-            color={viewed ? "default" : "secondary"}
-            size="small"
-          />
-        </Stack>
+      <Box sx={{ minWidth: 100 }}>
+        <Chip 
+          label={type} 
+          size="small"
+          sx={{ 
+            bgcolor: getTypeBgColor(type),
+            color: getTypeColor(type),
+            fontWeight: 500,
+            fontSize: 12,
+          }}
+        />
+      </Box>
 
-        <Typography variant="body1" sx={{ fontWeight: viewed ? 400 : 700 }}>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontWeight: viewed ? 400 : 500,
+            color: "#202124",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           {message}
         </Typography>
+      </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+      <Box sx={{ minWidth: 150, textAlign: 'right' }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: viewed ? "#5f6368" : "#202124",
+            fontWeight: viewed ? 400 : 500,
+            fontSize: 12,
+          }}
+        >
           {timestamp}
         </Typography>
+      </Box>
 
-        <Typography variant="caption" color="text.secondary">
-          ID: {id}
-        </Typography>
-      </CardContent>
-    </Card>
+      <Box sx={{ width: 60, display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+        <IconButton size="small" sx={{ color: "#5f6368" }}>
+          <ArchiveIcon fontSize="small" />
+        </IconButton>
+        <IconButton size="small" sx={{ color: "#5f6368" }}>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
+      </Box>
+    </Paper>
   );
 }

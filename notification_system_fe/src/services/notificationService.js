@@ -24,6 +24,7 @@ export async function fetchNotifications({
   });
 
   console.log("Fetching from:", url.toString());
+  console.log("Token being used:", BEARER_TOKEN ? "YES - " + BEARER_TOKEN.substring(0, 20) + "..." : "NO TOKEN");
   
   try {
     const response = await fetch(url.toString(), {
@@ -37,18 +38,8 @@ export async function fetchNotifications({
     
     if (!response.ok) {
       const errText = await response.text();
-      console.log("Notifications error response:", errText);
+      console.log("Notifications error:", errText);
       await logEvent({
-        stack: "frontend",
-        level: "error",
-        packageName: "api",
-        message: `Notification API failed with status ${response.status}`,
-      });
-
-      throw new Error("Unable to fetch notifications");
-    }
-
-    const data = JSON.parse(responseText);
         stack: "frontend",
         level: "error",
         packageName: "api",

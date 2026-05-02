@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import {
-  Alert,
   Box,
-  CircularProgress,
   Container,
-  Stack,
   Typography,
+  Paper,
+  Checkbox,
+  IconButton,
+  Stack,
 } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 import NotificationCard from "../components/NotificationCard";
 import NotificationFilters from "../components/NotificationFilters";
@@ -25,26 +28,20 @@ export default function AllNotifications() {
     let isActive = true;
 
     async function loadNotifications() {
-      console.log("AllNotifications: Starting to load...");
       try {
         setLoading(true);
         setError("");
 
-        console.log("AllNotifications: Calling fetch with", { limit: 10, page, notificationType });
-        
         const data = await fetchNotifications({
           limit: 10,
           page,
           notificationType,
         });
 
-        console.log("AllNotifications: Got data:", data);
-
         if (isActive) {
           setNotifications(data);
         }
-      } catch (err) {
-        console.log("AllNotifications: Error:", err.message);
+      } catch {
         if (isActive) {
           setError("Unable to load notifications. Please try again.");
         }
@@ -70,46 +67,56 @@ export default function AllNotifications() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          All Notifications
-        </Typography>
+    <Container maxWidth="lg" sx={{ py: 2 }}>
+      <Paper sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center' }}>
+        <Checkbox sx={{ mr: 2 }} />
+        
+        <IconButton sx={{ mr: 1 }}>
+          <RefreshIcon />
+        </IconButton>
+        
+        <IconButton sx={{ mr: 2 }}>
+          <FilterListIcon />
+        </IconButton>
 
-        <Typography color="text.secondary">
-          Browse campus updates across placements, results, and events.
-        </Typography>
-      </Box>
+        <NotificationFilters
+          notificationType={notificationType}
+          setNotificationType={setNotificationType}
+          page={page}
+          setPage={setPage}
+          showPagination
+        />
+      </Paper>
 
-      <NotificationFilters
-        notificationType={notificationType}
-        setNotificationType={setNotificationType}
-        page={page}
-        setPage={setPage}
-        showPagination
-      />
-
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
-          <CircularProgress />
+      <Paper sx={{ minHeight: 500 }}>
+        <Box sx={{ p: 2, borderBottom: "1px solid #efefef" }}>
+          <Typography variant="h6" sx={{ fontWeight: 400, color: "#202124" }}>
+            All Messages
+          </Typography>
         </Box>
-      )}
 
-      {error && <Alert severity="error">{error}</Alert>}
+        {error && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="error">{error}</Typography>
+          </Box>
+        )}
 
-      {!loading && !error && notifications.length === 0 && (
-        <Alert severity="info">No notifications found.</Alert>
-      )}
+        {!loading && !error && notifications.length === 0 && (
+          <Box sx={{ p: 4, textAlign: 'center' }}>
+            <Typography color="text.secondary">No notifications found.</Typography>
+          </Box>
+        )}
 
-      <Stack spacing={2} key={refreshKey}>
-        {notifications.map((notification) => (
-          <NotificationCard
-            key={notification.ID}
-            notification={notification}
-            onViewed={handleViewed}
-          />
-        ))}
-      </Stack>
+        <Stack spacing={0} key={refreshKey}>
+          {notifications.map((notification) => (
+            <NotificationCard
+              key={notification.ID}
+              notification={notification}
+              onViewed={handleViewed}
+            />
+          ))}
+        </Stack>
+      </Paper>
     </Container>
   );
 }
