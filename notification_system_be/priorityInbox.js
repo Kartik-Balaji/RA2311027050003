@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { logEvent } = require("../logging_middleware/logger");
+const { logEvent, ALLOWED_STACK, ALLOWED_LEVEL, ALLOWED_PACKAGE, BEARER_TOKEN } = require("../logging_middleware/logger");
 
 const NOTIFICATIONS_API_URL =
   "http://20.207.122.201/evaluation-service/notifications";
@@ -34,7 +34,7 @@ function calculatePriorityScore(notification) {
 async function fetchNotifications({ limit = 50, page = 1 }) {
   const url = new URL(NOTIFICATIONS_API_URL);
 
-  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("limit", String(10));
   url.searchParams.set("page", String(page));
 
   await logEvent({
@@ -45,7 +45,11 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
   });
 
   try {
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        Authorization: `Bearer ${BEARER_TOKEN}`,
+      },
+    });
 
     if (!response.ok) {
       await logEvent({
@@ -103,7 +107,7 @@ async function getTopPriorityNotifications(limit = 10) {
   });
 
   const notifications = await fetchNotifications({
-    limit: 50,
+    limit: 20,
     page: 1,
   });
 
@@ -258,15 +262,7 @@ async function main() {
       message: "Stage 1 HTML output generated successfully",
     });
   } catch (error) {
-    await logEvent({
-      stack: "backend",
-      level: "fatal",
-      package: "api",
-      message:
-        error instanceof Error
-          ? `Stage 1 script failed: ${error.message}`
-          : "Stage 1 script failed because of an unknown error",
-    });
+    console.log("Error:", error.message);
   }
 }
 
