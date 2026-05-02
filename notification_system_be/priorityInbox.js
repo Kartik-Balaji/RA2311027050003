@@ -1,34 +1,15 @@
 const fs = require("fs");
 const path = require("path");
+const { logEvent } = require("../logging_middleware/logger");
 
 const NOTIFICATIONS_API_URL =
   "http://20.207.122.201/evaluation-service/notifications";
-
-const LOGGING_API_URL = "YOUR_LOGGING_MIDDLEWARE_ENDPOINT_HERE";
 
 const TYPE_WEIGHTS = {
   Placement: 3,
   Result: 2,
   Event: 1,
 };
-
-async function logEvent({ stack, level, packageName, message }) {
-  try {
-    await fetch(LOGGING_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        stack,
-        level,
-        package: packageName,
-        message,
-      }),
-    });
-  } catch {
-  }
-}
 
 function parseNotificationTimestamp(timestamp) {
   if (!timestamp) {
@@ -59,7 +40,7 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
   await logEvent({
     stack: "backend",
     level: "info",
-    packageName: "api",
+    package: "api",
     message: `Fetching notifications from API. limit=${limit}, page=${page}`,
   });
 
@@ -70,7 +51,7 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
       await logEvent({
         stack: "backend",
         level: "error",
-        packageName: "api",
+        package: "api",
         message: `Notification API failed with status ${response.status}`,
       });
 
@@ -82,7 +63,7 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
     await logEvent({
       stack: "backend",
       level: "info",
-      packageName: "api",
+      package: "api",
       message: "Notification API call completed successfully",
     });
 
@@ -93,7 +74,7 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
     await logEvent({
       stack: "backend",
       level: "warn",
-      packageName: "api",
+      package: "api",
       message: "Notification API response did not contain notifications array",
     });
 
@@ -102,7 +83,7 @@ async function fetchNotifications({ limit = 50, page = 1 }) {
     await logEvent({
       stack: "backend",
       level: "fatal",
-      packageName: "api",
+      package: "api",
       message:
         error instanceof Error
           ? `Failed to fetch notifications: ${error.message}`
@@ -117,7 +98,7 @@ async function getTopPriorityNotifications(limit = 10) {
   await logEvent({
     stack: "backend",
     level: "info",
-    packageName: "utils",
+    package: "utils",
     message: "Started top priority notification calculation",
   });
 
@@ -140,7 +121,7 @@ async function getTopPriorityNotifications(limit = 10) {
   await logEvent({
     stack: "backend",
     level: "info",
-    packageName: "utils",
+    package: "utils",
     message: `Calculated top ${limit} priority notifications`,
   });
 
@@ -251,7 +232,7 @@ async function main() {
     await logEvent({
       stack: "backend",
       level: "info",
-      packageName: "api",
+      package: "api",
       message: "Stage 1 priority inbox script started",
     });
 
@@ -273,14 +254,14 @@ async function main() {
     await logEvent({
       stack: "backend",
       level: "info",
-      packageName: "api",
+      package: "api",
       message: "Stage 1 HTML output generated successfully",
     });
   } catch (error) {
     await logEvent({
       stack: "backend",
       level: "fatal",
-      packageName: "api",
+      package: "api",
       message:
         error instanceof Error
           ? `Stage 1 script failed: ${error.message}`
